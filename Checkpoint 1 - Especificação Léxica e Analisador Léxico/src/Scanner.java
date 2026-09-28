@@ -126,9 +126,9 @@ public class Scanner {
             String lexeme = source.substring(s, pos);
             TokenType type;
             if (isFloat) {
-                type = TokenType.FLOAT_LIT;
+                type = TokenType.REAL_LIT;
             } else {
-                type = TokenType.INT_LIT;
+                type = TokenType.NUMBER_LIT;
             }
             return new Token(type, lexeme, startLine, startCol);
         }
