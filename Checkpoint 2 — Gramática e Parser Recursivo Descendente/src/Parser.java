@@ -8,12 +8,34 @@ public class Parser {
     private Token lookahead;
     private List<String> erros;
 
-    // Conjuntos FOLLOW úteis para o modo pânico
+    //conjuntos FIRST e FOLLOW:
+    private static final Set<String> FIRST_TYPE = new HashSet<>(List.of("KW_NUMBER", "KW_REAL", "KW_CHAR", "KW_STR", "KW_BOOL", "KW_VOID"));
+    private static final Set<String> FIRST_EXPR = new HashSet<>(List.of("NOT", "ID", "NUMBER_LIT", "REAL_LIT", "CHAR_LIT", "STR_LIT", "TRUE_LIT", "FALSE_LIT", "LPAREN"));
+    private static final Set<String> FOLLOW_TYPE = new HashSet<>(List.of("ID", "RPAREN", "COMMA", "SEMICOLON", "LBRACE"));
     private static final Set<String> FOLLOW_IF_STMT_PRIME = new HashSet<>(List.of(
             "KW_NUMBER", "KW_REAL", "KW_CHAR", "KW_STR", "KW_BOOL", "KW_VOID",
             "ID", "KW_IF", "KW_FOR", "KW_RETURN", "KW_BREAK", "LBRACE", "RBRACE", "EOF"
     ));
+    private static final Set<String> FOLLOW_RETURN_STMT_PRIME = new HashSet<>(List.of(
+            "KW_NUMBER", "KW_REAL", "KW_CHAR", "KW_STR", "KW_BOOL", "KW_VOID",
+            "ID", "KW_IF", "KW_FOR", "KW_RETURN", "KW_BREAK", "LBRACE", "RBRACE", "EOF"
+    ));
+    private static final Set<String> FOLLOW_FOR_INIT = new HashSet<>(List.of("SEMICOLON"));
+    private static final Set<String> FOLLOW_PARAM_LIST = new HashSet<>(List.of("RPAREN"));
+    private static final Set<String> FOLLOW_ARG_LIST = new HashSet<>(List.of("RPAREN"));
+    private static final Set<String> FOLLOW_OR_EXPR_PRIME = new HashSet<>(List.of("SEMICOLON", "RPAREN", "COMMA", "LBRACE"));
+    private static final Set<String> FOLLOW_AND_EXPR_PRIME = new HashSet<>(List.of("OR", "SEMICOLON", "RPAREN", "COMMA"));
+    private static final Set<String> FOLLOW_EQ_EXPR_PRIME = new HashSet<>(List.of("AND", "OR", "SEMICOLON", "RPAREN", "COMMA"));
+    private static final Set<String> FOLLOW_REL_EXPR_PRIME = new HashSet<>(List.of("EQ", "NE", "AND", "OR", "SEMICOLON", "RPAREN", "COMMA"));
+    private static final Set<String> FOLLOW_ADD_EXPR_PRIME = new HashSet<>(List.of("GT", "GE", "LT", "LE", "EQ", "NE", "AND", "OR", "SEMICOLON", "RPAREN", "COMMA"));
+    private static final Set<String> FOLLOW_MULT_EXPR_PRIME = new HashSet<>(List.of("PLUS", "MINUS", "GT", "GE", "LT", "LE", "EQ", "NE", "AND", "OR", "SEMICOLON", "RPAREN", "COMMA"));
+    private static final Set<String> FOLLOW_ATOM = new HashSet<>(List.of("MULT", "DIV", "MOD", "PLUS", "MINUS", "GT", "GE", "LT", "LE", "EQ", "NE", "AND", "OR", "SEMICOLON", "RPAREN", "COMMA"));
+    private static final Set<String> SYNC_STMT_LIST = new HashSet<>(List.of(
+            "KW_NUMBER", "KW_REAL", "KW_CHAR", "KW_STR", "KW_BOOL", "KW_VOID",
+            "ID", "KW_IF", "KW_FOR", "KW_RETURN", "KW_BREAK", "LBRACE", "SEMICOLON", "RBRACE"
+    ));
 
+    //construtor:
     public Parser(Scanner scanner) {
         this.scanner = scanner;
         this.erros = new ArrayList<>();
@@ -32,11 +54,7 @@ public class Parser {
         if (lookahead != null && tipoAtual.equals(tipoEsperado)) {
             lookahead = scanner.nextToken();
         } else {
-            int linha = (lookahead != null) ? lookahead.line : -1;
-            int coluna = (lookahead != null) ? lookahead.col : -1;
             reportarErro("Esperava token " + tipoEsperado + ", mas encontrou " + tipoAtual);
-            // Estratégia defensiva: se o token esperado não veio, não travamos o compilador indefinidamente,
-            // permitindo que o fluxo prossiga ou caia na recuperação.
         }
     }
 
@@ -46,7 +64,6 @@ public class Parser {
         erros.add("Erro sintático [Linha: " + linha + ", Coluna: " + coluna + "]: " + mensagem);
     }
 
-    // Modo pânico: descarta tokens até encontrar um token pertencente ao conjunto de sincronização
     private void sincronizar(Set<String> syncSet) {
         while (lookahead != null && !getTipoLookahead().equals("EOF")) {
             if (syncSet.contains(getTipoLookahead())) {
@@ -66,15 +83,16 @@ public class Parser {
             if (lookahead != null && !getTipoLookahead().equals("EOF")) {
                 reportarErro("Tokens inesperados no final do arquivo.");
             }
+        } catch (LexicalError e) {
+            throw e;
         } catch (Exception e) {
             erros.add("Erro fatal no parser: " + e.getMessage());
         }
         return erros.isEmpty();
     }
 
-    // MÉTODOS RECURSIVOS DESCENDENTES POR NÃO-TERMINAL
-    // -----------------------------------------------------
-
+    
+    //parsers dos não-terminais:
     private void parsePrograma() {
         parseStmtList();
     }
@@ -82,24 +100,26 @@ public class Parser {
     private void parseStmtList() {
         while (lookahead != null && !getTipoLookahead().equals("EOF") && !getTipoLookahead().equals("RBRACE")) {
             String t = getTipoLookahead();
-            if (t.equals("KW_NUMBER") || t.equals("KW_REAL") || t.equals("KW_CHAR") ||
-                    t.equals("KW_STR") || t.equals("KW_BOOL") || t.equals("KW_VOID") ||
-                    t.equals("ID") || t.equals("KW_IF") || t.equals("KW_FOR") ||
-                    t.equals("KW_BREAK") || t.equals("KW_RETURN") || t.equals("LBRACE")) {
+            if (FIRST_TYPE.contains(t) || t.equals("ID") || t.equals("KW_IF") ||
+                t.equals("KW_FOR") || t.equals("KW_BREAK") || t.equals("KW_RETURN") || t.equals("LBRACE")) {
                 parseStmt();
             } else {
-                break;
+                reportarErro("Comando inválido ou token inesperado: " + t);
+                sincronizar(SYNC_STMT_LIST);
+                if (getTipoLookahead().equals("SEMICOLON")) {
+                    lookahead = scanner.nextToken();
+                }
             }
         }
     }
 
     private void parseStmt() {
         String t = getTipoLookahead();
-        if (t.equals("KW_NUMBER") || t.equals("KW_REAL") || t.equals("KW_CHAR") ||
-                t.equals("KW_STR") || t.equals("KW_BOOL") || t.equals("KW_VOID")) {
-            parseVarDecl();
+        if (FIRST_TYPE.contains(t)) {
+            parseDecl();
         } else if (t.equals("ID")) {
-            parseAssign();
+            match("ID");
+            parseStmtIDPrime();
         } else if (t.equals("KW_IF")) {
             parseIfStmt();
         } else if (t.equals("KW_FOR")) {
@@ -111,22 +131,47 @@ public class Parser {
         } else if (t.equals("LBRACE")) {
             parseBlock();
         } else {
-            reportarErro("Comando inválido. Token inesperado: " + t);
-            Set<String> sync = new HashSet<>(List.of("SEMICOLON", "RBRACE"));
-            sincronizar(sync);
+            reportarErro("Comando inválido: " + t);
+            sincronizar(SYNC_STMT_LIST);
+        }
+    }
+    
+    private void parseStmtIDPrime() {
+        String t = getTipoLookahead();
+        if (t.equals("ASSIGN")) {
+            match("ASSIGN");
+            parseExpr();
+            match("SEMICOLON");
+        } else if (t.equals("LPAREN")) {
+            match("LPAREN");
+            parseArgList();
+            match("RPAREN");
+            match("SEMICOLON");
+        } else {
+            reportarErro("Esperado '=' ou '(' após identificador, encontrou: " + t);
+            sincronizar(SYNC_STMT_LIST);
         }
     }
 
-    private void parseBlock() {
-        match("LBRACE");
-        parseStmtList();
-        match("RBRACE");
-    }
-
-    private void parseVarDecl() {
+    private void parseDecl() {
         parseType();
         match("ID");
-        parseVarDeclPrime();
+        parseDeclPrime();
+    }
+
+    private void parseDeclPrime() {
+        String t = getTipoLookahead();
+        if (t.equals("LPAREN")) {
+            match("LPAREN");
+            parseParamList();
+            match("RPAREN");
+            parseBlock();
+        } else if (t.equals("SEMICOLON") || t.equals("ASSIGN")) {
+            parseVarDeclPrime();
+        } else {
+            reportarErro("Esperado '(' para declaração de função ou ';' / '=' para variável, encontrou: " + t);
+            sincronizar(FOLLOW_IF_STMT_PRIME);
+        }
     }
 
     private void parseVarDeclPrime() {
@@ -139,8 +184,46 @@ public class Parser {
             match("SEMICOLON");
         } else {
             reportarErro("Esperado ';' ou '=' na declaração de variável");
-            sincronizar(new HashSet<>(List.of("SEMICOLON", "RBRACE")));
+            sincronizar(FOLLOW_IF_STMT_PRIME);
         }
+    }
+
+    private void parseParamList() {
+        String t = getTipoLookahead();
+        if (FIRST_TYPE.contains(t)) {
+            parseParam();
+            parseParamListPrime();
+        } else if (FOLLOW_PARAM_LIST.contains(t) || t.equals("EOF")) {
+            return; 
+        } else {
+            reportarErro("Esperava parâmetro ou ')', encontrou: " + t);
+            sincronizar(FOLLOW_PARAM_LIST);
+        }
+    }
+
+    private void parseParamListPrime() {
+        String t = getTipoLookahead();
+        if (t.equals("COMMA")) {
+            match("COMMA");
+            parseParam();
+            parseParamListPrime();
+        } else if (FOLLOW_PARAM_LIST.contains(t) || t.equals("EOF")) {
+            return;
+        } else {
+            reportarErro("Esperava ',' ou ')', encontrou: " + t);
+            sincronizar(FOLLOW_PARAM_LIST);
+        }
+    }
+
+    private void parseParam() {
+        parseType();
+        match("ID");
+    }
+
+    private void parseBlock() {
+        match("LBRACE");
+        parseStmtList();
+        match("RBRACE");
     }
 
     private void parseAssignBase() {
@@ -169,7 +252,6 @@ public class Parser {
             match("KW_ELSE");
             parseBlock();
         } else if (FOLLOW_IF_STMT_PRIME.contains(t) || t.equals("EOF")) {
-            // ε (vazio) válido conforme o FOLLOW
             return;
         } else {
             reportarErro("Token inesperado após if: " + t);
@@ -180,13 +262,28 @@ public class Parser {
     private void parseForStmt() {
         match("KW_FOR");
         match("LPAREN");
-        parseAssignBase();
+        parseForInit();
         match("SEMICOLON");
         parseExpr();
         match("SEMICOLON");
         parseAssignBase();
         match("RPAREN");
         parseBlock();
+    }
+    
+    private void parseForInit() {
+        String t = getTipoLookahead();
+        if (FIRST_TYPE.contains(t)) {
+            parseType();
+            match("ID");
+            match("ASSIGN");
+            parseExpr();
+        } else if (t.equals("ID")) {
+            parseAssignBase();
+        } else {
+            reportarErro("Inicialização inválida no 'for'.");
+            sincronizar(FOLLOW_FOR_INIT);
+        }
     }
 
     private void parseReturnStmt() {
@@ -195,11 +292,15 @@ public class Parser {
     }
 
     private void parseReturnStmtPrime() {
-        if (getTipoLookahead().equals("SEMICOLON")) {
+        String t = getTipoLookahead();
+        if (t.equals("SEMICOLON")) {
             match("SEMICOLON");
-        } else {
+        } else if (FIRST_EXPR.contains(t)) {
             parseExpr();
             match("SEMICOLON");
+        } else {
+            reportarErro("Esperada expressão ou ';' após return, encontrou " + t);
+            sincronizar(FOLLOW_RETURN_STMT_PRIME);
         }
     }
 
@@ -210,12 +311,11 @@ public class Parser {
 
     private void parseType() {
         String t = getTipoLookahead();
-        if (t.equals("KW_NUMBER") || t.equals("KW_REAL") || t.equals("KW_CHAR") ||
-                t.equals("KW_STR") || t.equals("KW_BOOL") || t.equals("KW_VOID")) {
+        if (FIRST_TYPE.contains(t)) {
             match(t);
         } else {
             reportarErro("Tipo inválido: " + t);
-            lookahead = scanner.nextToken();
+            sincronizar(FOLLOW_TYPE);
         }
     }
 
@@ -229,9 +329,16 @@ public class Parser {
     }
 
     private void parseOrExprPrime() {
-        while (lookahead != null && getTipoLookahead().equals("OR")) {
+        String t = getTipoLookahead();
+        if (t.equals("OR")) {
             match("OR");
             parseAndExpr();
+            parseOrExprPrime();
+        } else if (FOLLOW_OR_EXPR_PRIME.contains(t) || t.equals("EOF")) {
+            return;
+        } else {
+            reportarErro("Token inesperado em expressão OR: " + t);
+            sincronizar(FOLLOW_OR_EXPR_PRIME);
         }
     }
 
@@ -241,9 +348,16 @@ public class Parser {
     }
 
     private void parseAndExprPrime() {
-        while (lookahead != null && getTipoLookahead().equals("AND")) {
+        String t = getTipoLookahead();
+        if (t.equals("AND")) {
             match("AND");
             parseEqExpr();
+            parseAndExprPrime();
+        } else if (FOLLOW_AND_EXPR_PRIME.contains(t) || t.equals("EOF")) {
+            return;
+        } else {
+            reportarErro("Token inesperado em expressão AND: " + t);
+            sincronizar(FOLLOW_AND_EXPR_PRIME);
         }
     }
 
@@ -253,10 +367,16 @@ public class Parser {
     }
 
     private void parseEqExprPrime() {
-        while (lookahead != null && (getTipoLookahead().equals("EQ") || getTipoLookahead().equals("NE"))) {
-            String op = getTipoLookahead();
-            match(op);
+        String t = getTipoLookahead();
+        if (t.equals("EQ") || t.equals("NE")) {
+            match(t);
             parseRelExpr();
+            parseEqExprPrime();
+        } else if (FOLLOW_EQ_EXPR_PRIME.contains(t) || t.equals("EOF")) {
+            return;
+        } else {
+            reportarErro("Token inesperado em expressão de igualdade: " + t);
+            sincronizar(FOLLOW_EQ_EXPR_PRIME);
         }
     }
 
@@ -266,14 +386,16 @@ public class Parser {
     }
 
     private void parseRelExprPrime() {
-        while (lookahead != null) {
-            String t = getTipoLookahead();
-            if (t.equals("GT") || t.equals("GE") || t.equals("LT") || t.equals("LE")) {
-                match(t);
-                parseAddExpr();
-            } else {
-                break;
-            }
+        String t = getTipoLookahead();
+        if (t.equals("GT") || t.equals("GE") || t.equals("LT") || t.equals("LE")) {
+            match(t);
+            parseAddExpr();
+            parseRelExprPrime();
+        } else if (FOLLOW_REL_EXPR_PRIME.contains(t) || t.equals("EOF")) {
+            return;
+        } else {
+            reportarErro("Token inesperado em expressão relacional: " + t);
+            sincronizar(FOLLOW_REL_EXPR_PRIME);
         }
     }
 
@@ -283,54 +405,111 @@ public class Parser {
     }
 
     private void parseAddExprPrime() {
-        while(lookahead != null && (getTipoLookahead().equals("PLUS") || getTipoLookahead().equals("MINUS"))) {
-            String op = getTipoLookahead();
-            match(op);
+        String t = getTipoLookahead();
+        if (t.equals("PLUS") || t.equals("MINUS")) {
+            match(t);
             parseMultExpr();
+            parseAddExprPrime();
+        } else if (FOLLOW_ADD_EXPR_PRIME.contains(t) || t.equals("EOF")) {
+            return;
+        } else {
+            reportarErro("Token inesperado em expressão de adição: " + t);
+            sincronizar(FOLLOW_ADD_EXPR_PRIME);
         }
     }
 
-    private void parseMultExpr(){
+    private void parseMultExpr() {
         parseUnaryExpr();
         parseMultExprPrime();
     }
 
-    private void parseMultExprPrime(){
-        while(lookahead != null){
-            String t = getTipoLookahead();
-            if(t.equals("MULT") || t.equals("DIV") || t.equals("MOD")){
-                match(t);
-                parseUnaryExpr();
-            }else{
-                break;
-            }
+    private void parseMultExprPrime() {
+        String t = getTipoLookahead();
+        if (t.equals("MULT") || t.equals("DIV") || t.equals("MOD")) {
+            match(t);
+            parseUnaryExpr();
+            parseMultExprPrime();
+        } else if (FOLLOW_MULT_EXPR_PRIME.contains(t) || t.equals("EOF")) {
+            return;
+        } else {
+            reportarErro("Token inesperado em expressão de multiplicação: " + t);
+            sincronizar(FOLLOW_MULT_EXPR_PRIME);
         }
     }
 
     private void parseUnaryExpr() {
-        if(lookahead != null && getTipoLookahead().equals("NOT")){
+        String t = getTipoLookahead();
+        if (t.equals("NOT")) {
             match("NOT");
             parseUnaryExpr();
-        }else{
+        } else if (FIRST_EXPR.contains(t)) {
             parseAtom();
+        } else {
+            reportarErro("Operador unário ou átomo esperado, encontrou: " + t);
+            sincronizar(FOLLOW_MULT_EXPR_PRIME);
         }
     }
 
-    private void parseAtom(){
-        if(lookahead == null){
+    private void parseAtom() {
+        if (lookahead == null) {
             reportarErro("Fim de arquivo inesperado dentro de expressão.");
             return;
         }
         String t = getTipoLookahead();
-        if(t.equals("ID") || t.equals("NUMBER_LIT") || t.equals("REAL_LIT") || t.equals("CHAR_LIT") || t.equals("STR_LIT")){
+        if (t.equals("ID")) {
+            match("ID");
+            parseAtomPrime();
+        } else if (t.equals("NUMBER_LIT") || t.equals("REAL_LIT") || t.equals("CHAR_LIT") ||
+                   t.equals("STR_LIT") || t.equals("TRUE_LIT") || t.equals("FALSE_LIT")) {
             match(t);
-        }else if (t.equals("LPAREN")){
+        } else if (t.equals("LPAREN")) {
             match("LPAREN");
             parseExpr();
             match("RPAREN");
-        }else{
+        } else {
             reportarErro("Átomo inválido: " + t);
-            lookahead = scanner.nextToken(); // Consome para evitar loop infinito
+            sincronizar(FOLLOW_ATOM);
+        }
+    }
+
+    private void parseAtomPrime() {
+        String t = getTipoLookahead();
+        if (t.equals("LPAREN")) {
+            match("LPAREN");
+            parseArgList();
+            match("RPAREN");
+        } else if (FOLLOW_ATOM.contains(t) || t.equals("EOF")) {
+            return; 
+        } else {
+            reportarErro("Token inesperado após identificador em expressão: " + t);
+            sincronizar(FOLLOW_ATOM);
+        }
+    }
+
+    private void parseArgList() {
+        String t = getTipoLookahead();
+        if (FIRST_EXPR.contains(t)) {
+            parseExpr();
+            parseArgListPrime();
+        } else if (FOLLOW_ARG_LIST.contains(t) || t.equals("EOF")) {
+            return;
+        } else {
+            reportarErro("Esperava expressão ou ')', encontrou: " + t);
+            sincronizar(FOLLOW_ARG_LIST);
+        }
+    }
+
+    private void parseArgListPrime() {
+        String t = getTipoLookahead();
+        if (t.equals("COMMA")) {
+            match("COMMA");
+            parseExpr();
+            parseArgListPrime();
+        } else if (FOLLOW_ARG_LIST.contains(t) || t.equals("EOF")) {
+            return; // ε
+        } else {
+            reportarErro("Esperava ',' ou ')', encontrou: " + t);
+            sincronizar(FOLLOW_ARG_LIST);
         }
     }
 }
