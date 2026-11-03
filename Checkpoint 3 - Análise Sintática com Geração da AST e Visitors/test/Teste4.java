@@ -35,7 +35,7 @@ public class Teste4 {
             System.out.println(codigoReimpresso);
 
             try{
-                String astEsperada = Files.readString(Path.of("Teste4.txt")).replace("\r\n", "\n").trim();
+                String astEsperada = Files.readString(Path.of(test/esperado/Teste4.txt)).replace("\r\n", "\n").trim();
                 if (astEsperada.equals(astTexto)) {
                     System.out.println("\nCorreto -> A AST gerada é igual à AST esperada.");
                 } else {
