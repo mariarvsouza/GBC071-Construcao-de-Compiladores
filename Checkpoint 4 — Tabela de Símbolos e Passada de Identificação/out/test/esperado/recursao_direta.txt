@@ -1,3 +1,0 @@
-linha 2: 'n' -> PARAM@1
-linha 2: 'f' -> FUNC@1
-linha 2: 'n' -> PARAM@1

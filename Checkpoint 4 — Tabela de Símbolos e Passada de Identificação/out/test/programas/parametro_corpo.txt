@@ -1,4 +1,0 @@
-number soma(number a) {
-  number a = 10;
-  return a + 1;
-}

@@ -1,8 +1,0 @@
-linha 3: 'i' -> VAR@3
-linha 3: 'limite' -> PARAM@2
-linha 3: 'i' -> VAR@3
-linha 3: 'i' -> VAR@3
-linha 4: 'total' -> VAR@1
-linha 4: 'total' -> VAR@1
-linha 4: 'i' -> VAR@3
-linha 6: 'total' -> VAR@1

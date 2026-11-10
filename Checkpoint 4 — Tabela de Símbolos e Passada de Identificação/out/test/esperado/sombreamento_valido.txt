@@ -1,2 +1,0 @@
-linha 4: 'x' -> VAR@3
-linha 6: 'x' -> VAR@1
