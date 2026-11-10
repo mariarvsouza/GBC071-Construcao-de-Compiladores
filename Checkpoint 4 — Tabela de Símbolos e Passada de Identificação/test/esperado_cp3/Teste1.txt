@@ -1,0 +1,17 @@
+ProgramNode
+  FuncDeclNode(returnType: "void", name: "main")
+    BlockNode
+      VarDeclNode(type: "number", varID: "r1")
+        BinExprNode(operator: "-")
+          BinExprNode(operator: "-")
+            IdExprNode(id: "a")
+            IdExprNode(id: "b")
+          IdExprNode(id: "c")
+      VarDeclNode(type: "number", varID: "r2")
+        BinExprNode(operator: "+")
+          IdExprNode(id: "a")
+          BinExprNode(operator: "/")
+            BinExprNode(operator: "*")
+              IdExprNode(id: "b")
+              IdExprNode(id: "c")
+            IdExprNode(id: "d")

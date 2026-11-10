@@ -1,0 +1,7 @@
+number total = 0;
+number soma(number limite) {
+  for (number i = 0; i < limite; i = i + 1) {
+    total = total + i;
+  }
+  return total;
+}
