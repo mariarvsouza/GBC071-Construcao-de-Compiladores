@@ -1,0 +1,7 @@
+ProgramNode
+  FuncDeclNode(returnType: "void", name: "main")
+    BlockNode
+      VarDeclNode(type: "number", varID: "x")
+        BinExprNode(operator: "+")
+          IdExprNode(id: "a")
+          IdExprNode(id: "b")
