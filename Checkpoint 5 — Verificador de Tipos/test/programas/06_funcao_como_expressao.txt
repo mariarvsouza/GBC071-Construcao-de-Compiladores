@@ -1,0 +1,4 @@
+number dobro(number x) {
+    return x + x;
+}
+number resultado = dobro(2);

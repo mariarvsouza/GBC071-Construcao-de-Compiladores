@@ -1,0 +1,4 @@
+number inteiro = 10;
+real decimal = inteiro;
+real resultado = inteiro + 2.5;
+print(resultado);

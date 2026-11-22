@@ -1,0 +1,2 @@
+real decimal = 2.5;
+number inteiro = decimal;

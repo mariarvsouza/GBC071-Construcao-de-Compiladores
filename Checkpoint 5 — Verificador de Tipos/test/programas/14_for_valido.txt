@@ -1,0 +1,5 @@
+number total = 0;
+for (number i = 0; i < 3; i = i + 1) {
+    total = total + i;
+}
+print(total);

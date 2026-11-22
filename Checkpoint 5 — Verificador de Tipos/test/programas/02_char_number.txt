@@ -1,0 +1,3 @@
+char letra = 'a';
+number inteiro = 2;
+number resultado = letra + inteiro;
