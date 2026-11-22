@@ -1,0 +1,6 @@
+number a = 9;
+number b = 2;
+number div = a / b;
+number resto = a % b;
+real c = a + 2.0;
+bool menor = a < c;

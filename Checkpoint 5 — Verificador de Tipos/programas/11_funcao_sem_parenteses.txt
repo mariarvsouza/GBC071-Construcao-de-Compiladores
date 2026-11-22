@@ -1,0 +1,4 @@
+number gera() {
+    return 2;
+}
+number valor = gera;

@@ -1,0 +1,5 @@
+number idade;
+string nome;
+read(idade);
+read(nome);
+print(idade);

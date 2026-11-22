@@ -1,0 +1,4 @@
+bool ligado = true;
+if (ligado) {
+    print("ok");
+}

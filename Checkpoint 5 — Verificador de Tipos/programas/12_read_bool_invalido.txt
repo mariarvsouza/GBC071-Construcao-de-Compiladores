@@ -1,0 +1,2 @@
+bool ativo;
+read(ativo);
