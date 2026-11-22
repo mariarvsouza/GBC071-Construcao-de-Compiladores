@@ -1,2 +1,0 @@
-number f() { return g(); }
-number g() { return f(); }

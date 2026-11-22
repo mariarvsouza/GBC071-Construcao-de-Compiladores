@@ -1,6 +1,0 @@
-number x = 1;
-{
-  number x = 2;
-  number y = x;
-}
-number z = x;

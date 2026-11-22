@@ -1,2 +1,0 @@
-linha 1: 'x' não declarado
-linha 3: 'x' -> VAR@2

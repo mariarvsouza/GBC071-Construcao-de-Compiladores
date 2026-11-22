@@ -1,2 +1,0 @@
-linha 1: 'g' não declarado
-linha 2: 'f' -> FUNC@1

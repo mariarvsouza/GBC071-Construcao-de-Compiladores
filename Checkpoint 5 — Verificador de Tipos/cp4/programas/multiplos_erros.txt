@@ -1,4 +1,0 @@
-number a = 1;
-number a = 2;
-b = c;
-number d = e;

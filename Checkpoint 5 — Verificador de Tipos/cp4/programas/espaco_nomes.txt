@@ -1,4 +1,0 @@
-char x = 'a';
-number x(number y) {
-  return y;
-}
