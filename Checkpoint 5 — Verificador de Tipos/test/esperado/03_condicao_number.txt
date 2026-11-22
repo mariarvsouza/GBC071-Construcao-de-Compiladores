@@ -1,0 +1,1 @@
+linha 2: condicao de 'if' deve ser bool, mas e number
