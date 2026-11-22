@@ -1,1 +1,0 @@
-linha 2: inicializacao de 'inteiro': esperado number, veio real

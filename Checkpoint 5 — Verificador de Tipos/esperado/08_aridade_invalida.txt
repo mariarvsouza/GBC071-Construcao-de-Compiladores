@@ -1,1 +1,0 @@
-linha 4: 'dobro' espera 1 argumento(s), recebeu 2

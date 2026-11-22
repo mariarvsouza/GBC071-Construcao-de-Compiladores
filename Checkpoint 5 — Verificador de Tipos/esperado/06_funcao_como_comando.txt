@@ -1,1 +1,0 @@
-linha 4: funcao 'dobro' retorna number e nao pode ser usada como comando

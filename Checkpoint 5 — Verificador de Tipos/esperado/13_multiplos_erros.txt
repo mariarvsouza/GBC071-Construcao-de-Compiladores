@@ -1,3 +1,0 @@
-linha 1: inicializacao de 'x': esperado number, veio real
-linha 3: operador '<' incompativel com string e string
-linha 4: operador '+' incompativel com bool e number

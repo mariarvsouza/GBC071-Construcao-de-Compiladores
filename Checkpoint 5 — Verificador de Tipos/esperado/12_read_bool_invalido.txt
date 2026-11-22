@@ -1,1 +1,0 @@
-linha 2: 'read' nao aceita variavel 'ativo' do tipo bool

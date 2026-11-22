@@ -1,1 +1,0 @@
-linha 4: 'conta' já declarado neste escopo (linha 1)

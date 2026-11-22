@@ -1,1 +1,0 @@
-linha 3: operador '==' incompativel com number e string
