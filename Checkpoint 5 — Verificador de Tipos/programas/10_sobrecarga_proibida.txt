@@ -1,6 +1,0 @@
-number conta(number n) {
-    return n;
-}
-real conta(real n) {
-    return n;
-}

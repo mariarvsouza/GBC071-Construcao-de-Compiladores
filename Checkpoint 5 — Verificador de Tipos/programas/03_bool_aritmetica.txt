@@ -1,2 +1,0 @@
-bool ligado = true;
-number valor = ligado + 1;

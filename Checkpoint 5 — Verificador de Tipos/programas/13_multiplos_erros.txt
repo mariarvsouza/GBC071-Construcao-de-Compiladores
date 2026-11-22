@@ -1,4 +1,0 @@
-number x = 1.5;
-string s = "a";
-bool ordem = s < "b";
-number y = true + 3;

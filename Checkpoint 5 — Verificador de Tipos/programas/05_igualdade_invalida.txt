@@ -1,3 +1,0 @@
-number a = 1;
-string b = "1";
-bool iguais = a == b;

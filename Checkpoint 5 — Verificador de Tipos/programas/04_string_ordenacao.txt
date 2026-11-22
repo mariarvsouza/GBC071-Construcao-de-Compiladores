@@ -1,3 +1,0 @@
-string a = "a";
-string b = "b";
-bool ordem = a < b;

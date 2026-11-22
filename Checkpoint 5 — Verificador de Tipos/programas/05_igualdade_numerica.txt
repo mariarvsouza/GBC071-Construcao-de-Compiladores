@@ -1,3 +1,0 @@
-number a = 1;
-real b = 1.0;
-bool iguais = a == b;

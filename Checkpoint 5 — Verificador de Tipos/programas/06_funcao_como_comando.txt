@@ -1,4 +1,0 @@
-number dobro(number x) {
-    return x + x;
-}
-dobro(2);

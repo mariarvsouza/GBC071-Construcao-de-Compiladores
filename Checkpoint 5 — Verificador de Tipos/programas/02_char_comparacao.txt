@@ -1,3 +1,0 @@
-char letra = 'a';
-number inteiro = 2;
-bool teste = letra < inteiro;

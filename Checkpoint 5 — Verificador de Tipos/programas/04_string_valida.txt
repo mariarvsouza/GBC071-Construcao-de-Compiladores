@@ -1,5 +1,0 @@
-string a = "ola";
-string b = " mundo";
-string c = a + b;
-bool iguais = a == b;
-print(c);

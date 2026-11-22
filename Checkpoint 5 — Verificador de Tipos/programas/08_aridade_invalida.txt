@@ -1,4 +1,0 @@
-real dobro(real x) {
-    return x + x;
-}
-real resultado = dobro(1, 2);
