@@ -1,0 +1,4 @@
+number f(number n) {
+  if (n > 0) { return f(n - 1); }
+  return 0;
+}
