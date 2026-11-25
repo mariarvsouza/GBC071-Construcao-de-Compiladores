@@ -2,11 +2,10 @@
 
 ## 1. Objetivo
 
-O Checkpoint 5 implementa a análise semântica de tipos de uma linguagem de programação educacional.
+O Checkpoint 5 implementa a análise semântica de tipos da linguagem.
 
-O verificador percorre a Árvore Sintática Abstrata (AST), determina o tipo das expressões e identifica operações incompatíveis, chamadas de funções incorretas, problemas de atribuição e violações das regras de retorno.
+Para isso, o verificador percorre a Árvore Sintática Abstrata (AST), determina o tipo das expressões e identifica operações incompatíveis, chamadas de funções incorretas, problemas de atribuição e violações das regras de retorno. A implementação é feito por meio de um Visitor.
 
-A implementação utiliza o padrão de projeto **Visitor**, reaproveitando as estruturas construídas nos checkpoints anteriores.
 
 ## 2. Organização do compilador
 
@@ -33,7 +32,6 @@ A linguagem possui os seguintes tipos:
 | `string` | Sequência de caracteres |
 | `void` | Ausência de valor de retorno |
 
-Internamente, o verificador também utiliza `ERROR`, que permite representar uma expressão inválida e reduzir a propagação de mensagens de erro em cascata.
 
 ## 4. Principais regras semânticas
 
@@ -104,11 +102,8 @@ Foram executadas cinco baterias de testes:
 | Procedimentos, funções e retornos | 21/21 |
 | **Total** | **174/174** |
 
-Os testes de operadores, inicialização e procedimentos utilizam construções diretas da AST, permitindo verificar partes da análise semântica independentemente do parser.
+Os testes de operadores, inicialização e procedimentos utilizam construções diretas da AST, permitindo verificar partes da análise semântica independentemente do parser. Os programas completos são comparados com os respectivos resultados esperados.
 
-Os programas completos são comparados com os respectivos resultados esperados.
-
-**Observação:** a aprovação dos testes representa os cenários implementados nas baterias, não uma garantia de cobertura absoluta do compilador.
 
 ## 7. Como executar
 
@@ -135,15 +130,6 @@ As suítes utilizam a saída do console para apresentar os testes aprovados e os
 
 A pasta `test/` contém os programas utilizados na verificação, os resultados esperados e as classes Java de teste.
 
-Os testes de regressão do CP4 ficam separados dos programas e resultados esperados do CP5 para evitar conflitos de nomes e facilitar a manutenção.
+Os testes de regressão do CP4 ficam separados dos programas e resultados esperados do CP5 para evitar conflitos de nomes.
 
-A execução de testes que leem arquivos utiliza caminhos relativos à raiz do projeto, que deve estar configurada como diretório de trabalho.
-
-## 9. Limitações
-
-O projeto implementa a análise semântica exigida para o checkpoint, não um compilador completo com geração de código executável.
-
-A análise de inicialização é conservadora e não representa uma prova de inicialização para todos os caminhos de execução possíveis.
-
-As regras de compatibilidade seguem as decisões de projeto adotadas para esta linguagem, que não necessariamente correspondem às regras de Java ou de outras linguagens de programação.
 
