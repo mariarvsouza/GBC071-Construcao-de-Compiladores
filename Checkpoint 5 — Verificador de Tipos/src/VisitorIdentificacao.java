@@ -4,6 +4,16 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Passada de identificação do CP4.
+ * Escopos: global (0); função (parâmetros + corpo no mesmo nível);
+ * bloco ordinário (novo nível); for (nível para variável de controle e
+ * nível adicional para o bloco do corpo).
+ *
+ * Para usos representados somente por String no CP3 (AssignNode.varID
+ * e CallFuncExprNode.func), guarda a associação em um mapa externo de nós:
+ * nenhuma classe da AST além de IdExprNode precisa ser modificada.
+ */
 public final class VisitorIdentificacao implements Visitor<Void> {
     private final SymbolTable tabela;
     private final List<String> erros = new ArrayList<>();
@@ -22,14 +32,18 @@ public final class VisitorIdentificacao implements Visitor<Void> {
         this.tabela = tabela;
     }
 
+    /** Só chamar sobre uma AST de ParseResult.isSucesso() == true. */
     public List<String> getErros() {
         return Collections.unmodifiableList(erros);
     }
 
+    /** Resolve usos em AssignNode e CallFuncExprNode sem mudar sua forma. */
     public Symbol getResolucao(Node uso) {
         return resolucoes.get(uso);
     }
 
+    /** Recupera o símbolo de uma declaração aceita (variável, parâmetro ou função).
+     *  Devolve null se o nó não representa uma declaração aceita. */
     public Symbol getSimboloDeclaracao(Node declaracao) {
         return declaracoes.get(declaracao);
     }
@@ -64,17 +78,6 @@ public final class VisitorIdentificacao implements Visitor<Void> {
             return null;
         }
         return s;
-    }
-
-    @Override public Void visitPrintStmt(PrintStmtNode node) {
-        visitar(node.expr);
-        return null;
-    }
-
-    @Override public Void visitReadStmt(ReadStmtNode node) {
-        Symbol destino = usar(node.varID, node);
-        if (destino != null) resolucoes.put(node, destino);
-        return null;
     }
 
     @Override public Void visitProgram(ProgramNode node) {
@@ -113,10 +116,9 @@ public final class VisitorIdentificacao implements Visitor<Void> {
         return null;
     }
 
-    @Override
-    public Void visitVarDecl(VarDeclNode node) {
-        visitar(node.initExpr);
+    @Override public Void visitVarDecl(VarDeclNode node) {
         declarar(node.varID, Kind.VAR, node);
+        visitar(node.initExpr);
         return null;
     }
 
